@@ -62,7 +62,7 @@ for digit in range(20, -1, -1):
 button_text = ''
 print(square_names)
 for btn_id in square_names:
-    button_text += f'Button:\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\ton_press: root.attempt_move(self.id)\n\t\t\t\t'
+    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
 
 temp_string = kv_string
 index = temp_string.find(' # Button insertion')
@@ -70,30 +70,18 @@ modified_string = temp_string[:index] + '\n\t\t\t\t' + button_text + temp_string
 kv_string = modified_string
 
 
-# def kv_string_build():
-#     pass
-#
-#
-# def attempt_move(button_id):
-#     """
-#     Attempts a move when a button is pressed
-#     :param button_id:
-#     :return:
-#     """
-#     print('The button <%s is being pressed' % button_id)
-#
-#
-# class SquareButton(Button):
-#     """
-#     Creates a custom class inheriting from the kivy Button class, representing one of the squares on the board.
-#     """
-#     def on_size(self, square_value='', *args):
-#         self.canvas.before.clear()
-#         with self.canvas.before:
-#             Color(1, 1, 1, 1)
-#
+class SquareButton(Button):
+    """
+    Creates a custom class inheriting from the kivy Button class, representing one of the squares on the board.
+    """
+    def on_size(self, square_coords='', *args):
+        self.canvas.before.clear()
+        with self.canvas.before:
+            Color(1, 1, 1, 1)
+
 
 Builder.load_string(kv_string)
+
 
 class GessGameGUI(BoxLayout):
 
@@ -138,8 +126,13 @@ class GessGameGUI(BoxLayout):
 
         # self.update_board()
 
-    def attempt_move(self, id):
-        print(f'Pressed {id}')
+    def attempt_move(self, square_coords):
+        """
+        Sends a coordinate from a square.
+        :param square_coords:
+        :return:
+        """
+        print(f'Pressed {square_coords}')
 
     def update_square(self, square_name, new_value):
         pass
