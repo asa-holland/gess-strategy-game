@@ -11,6 +11,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.graphics import Color
+from kivy.core.image import Image as CoreImage
 
 
 
@@ -18,8 +19,8 @@ kv_string = """
 <GessGameGUI>:
     BoxLayout:
         orientation: 'vertical'
-        Button:
-            text: 'top_buffer'
+        Label:
+            text: 'Current Player: Black'
             id: top_buffer
             size_hint_y: None
             height: 25
@@ -33,6 +34,11 @@ kv_string = """
                 width: 25  
             GridLayout:
                 id: grid_layout
+                canvas.before:
+                    BorderImage:
+                        source: '../gess-strategy-game/background.jpg'
+                        pos: self.pos
+                        size: self.size
                 cols: 21 # Button insertion
             Button:
                 text: 'right_buffer'
@@ -44,7 +50,18 @@ kv_string = """
             text: 'bottom_buffer'
             id: bottom_buffer
             size_hint_y: None
-            height: 25   
+            height: 25 
+        BoxLayout:
+            orientation: 'horizontal'
+            id: bottom_tabs
+            size_hint_y: None
+            height: 25
+            Button:
+                text: 'Resign'
+                id: resign_btn
+                size_hint_y: None
+                height: 25
+                on_press: root.get_gess_game().resign_game()
 """
 square_names = []
 for digit in range(20, -1, -1):
@@ -62,7 +79,7 @@ for digit in range(20, -1, -1):
 button_text = ''
 print(square_names)
 for btn_id in square_names:
-    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
+    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tbackground_color: 0, 0, 0, 0\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
 
 temp_string = kv_string
 index = temp_string.find(' # Button insertion')
@@ -77,7 +94,7 @@ class SquareButton(Button):
     def on_size(self, square_coords='', *args):
         self.canvas.before.clear()
         with self.canvas.before:
-            Color(1, 1, 1, 1)
+            Color(0, 0, 0, 0)
 
 
 Builder.load_string(kv_string)
@@ -98,6 +115,19 @@ class GessGameGUI(BoxLayout):
         self._destination_square_selection = ''
         self.update_board()
 
+    def get_gess_game(self):
+        """
+        Returns the backend of the current Gess Game.
+        :return: Returns the backend of the current Gess Game.
+        """
+        return self._gess_game
+
+    def highlight_square(self, coordinates):
+        self.ids[coordinates].background_color = (0, 1, 0, 1)
+
+    def decolor_square(self, coordinates):
+        self.ids[coordinates].background_color = (0, 0, 0, 0)
+
     def attempt_move(self, square_coords):
         """
         Sends a coordinate from a square.
@@ -108,12 +138,15 @@ class GessGameGUI(BoxLayout):
         if self._status == 'WAITING_FOR_SELECTION':
             print(f'Origin selected: {square_coords}')
             self._origin_square_selection = square_coords
+            self.highlight_square(square_coords)
             self._status = 'ORIGIN_SELECTED'
             return True
 
         if self._status == 'ORIGIN_SELECTED':
             print(f'Destination selected: {square_coords}')
             self._destination_square_selection = square_coords
+
+            self.decolor_square(self._origin_square_selection)
             if self._gess_game.make_move(self._origin_square_selection, self._destination_square_selection):
                 print(f'Move from {self._origin_square_selection} to {self._destination_square_selection} successful.')
                 self.update_board()
@@ -127,9 +160,6 @@ class GessGameGUI(BoxLayout):
                 self._origin_square_selection = ''
                 self._destination_square_selection = ''
                 return False
-
-
-        print(f'Pressed {square_coords}')
 
     def update_square(self, square_name, new_value):
         pass
@@ -148,6 +178,8 @@ class GessGameGUI(BoxLayout):
         for (square_name, square_contents) in square_names_and_contents:
             self.ids[square_name].text = square_contents
 
+        current_player = 'Black' if self._gess_game.get_current_player() == 'B' else 'White'
+        self.ids['top_buffer'].text = 'Current Player: ' + current_player
 
 
 
