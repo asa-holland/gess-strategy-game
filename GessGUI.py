@@ -12,7 +12,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.graphics import Color
 from kivy.core.image import Image as CoreImage
-
+from kivy.graphics import BorderImage
 
 
 kv_string = """
@@ -79,7 +79,9 @@ for digit in range(20, -1, -1):
 button_text = ''
 print(square_names)
 for btn_id in square_names:
-    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tbackground_color: 0, 0, 0, 0\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
+    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'' \
+                   f'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tbackground_color: 0, 0, 0, 0.2\n\t\t\t\t\tid: {btn_id}' \
+                   f'\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
 
 temp_string = kv_string
 index = temp_string.find(' # Button insertion')
@@ -94,7 +96,9 @@ class SquareButton(Button):
     def on_size(self, square_coords='', *args):
         self.canvas.before.clear()
         with self.canvas.before:
-            Color(0, 0, 0, 0)
+            pass
+            #BorderImage(border=(1, 1, 1, 1), size=(self.width, self.height), pos=(self.x,  self.y))
+            # Color(0, 0, 0, 0)
 
 
 Builder.load_string(kv_string)
@@ -126,7 +130,7 @@ class GessGameGUI(BoxLayout):
         self.ids[coordinates].background_color = (0, 1, 0, 1)
 
     def decolor_square(self, coordinates):
-        self.ids[coordinates].background_color = (0, 0, 0, 0)
+        self.ids[coordinates].background_color = (0, 0, 0, 0.2)
 
     def attempt_move(self, square_coords):
         """
