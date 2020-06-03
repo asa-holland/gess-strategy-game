@@ -12,6 +12,8 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.graphics import Color
 
+
+
 kv_string = """
 <GessGameGUI>:
     BoxLayout:
@@ -44,53 +46,80 @@ kv_string = """
             size_hint_y: None
             height: 25   
 """
+square_names = []
+for digit in range(20, -1, -1):
+    if digit != 0:
+        for letter in 'abcdefghijklmnopqrstu':
+            if letter != 'u':
+                square_name_to_append = letter + str(digit)
+            else:
+                square_name_to_append = str(digit)
+            square_names.append(square_name_to_append)
+    else:
+        for letter in 'abcdefghijklmnopqrst':
+            square_names.append(letter)
 
-def kv_string_build():
-    pass
+button_text = ''
+print(square_names)
+for btn_id in square_names:
+    button_text += f'Button:\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\ton_press: root.attempt_move(self.id)\n\t\t\t\t'
+
+temp_string = kv_string
+index = temp_string.find(' # Button insertion')
+modified_string = temp_string[:index] + '\n\t\t\t\t' + button_text + temp_string[index:]
+kv_string = modified_string
 
 
+# def kv_string_build():
+#     pass
+#
+#
+# def attempt_move(button_id):
+#     """
+#     Attempts a move when a button is pressed
+#     :param button_id:
+#     :return:
+#     """
+#     print('The button <%s is being pressed' % button_id)
+#
+#
+# class SquareButton(Button):
+#     """
+#     Creates a custom class inheriting from the kivy Button class, representing one of the squares on the board.
+#     """
+#     def on_size(self, square_value='', *args):
+#         self.canvas.before.clear()
+#         with self.canvas.before:
+#             Color(1, 1, 1, 1)
+#
 
-def attempt_move(button_id):
-    """
-    Attempts a move when a button is pressed
-    :param button_id:
-    :return:
-    """
-    print('The button <%s is being pressed' % button_id)
-
-class SquareButton(Button):
-    """
-    Creates a custom class inheriting from the kivy Button class, representing one of the squares on the board.
-    """
-    def on_size(self, square_value='', *args):
-        self.canvas.before.clear()
-        with self.canvas.before:
-            Color(1, 1, 1, 1)
-
+Builder.load_string(kv_string)
 
 class GessGameGUI(BoxLayout):
 
     def __init__(self, **kwargs):
         global kv_string
+        super(GessGameGUI, self).__init__(**kwargs)
 
-        super().__init__(**kwargs)
+        Builder.load_string(kv_string)
+
         self._square_names = []
 
-        for digit in range(20, -1, -1):
-            if digit != 0:
-                for letter in 'abcdefghijklmnopqrstu':
-                    if letter != 'u':
-                        square_name_to_append = letter + str(digit)
-                    else:
-                        square_name_to_append = str(digit)
-                    self._square_names.append(square_name_to_append)
-            else:
-                for letter in 'abcdefghijklmnopqrst':
-                    self._square_names.append(letter)
-
-        button_text = ''
-        for btn_id in self._square_names:
-            button_text += f'Button:\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ttext: \' \'\n\t\t\t\t'#on_press: root.attempt_move(self.id)'
+        # for digit in range(20, -1, -1):
+        #     if digit != 0:
+        #         for letter in 'abcdefghijklmnopqrstu':
+        #             if letter != 'u':
+        #                 square_name_to_append = letter + str(digit)
+        #             else:
+        #                 square_name_to_append = str(digit)
+        #             self._square_names.append(square_name_to_append)
+        #     else:
+        #         for letter in 'abcdefghijklmnopqrst':
+        #             self._square_names.append(letter)
+        #
+        # button_text = ''
+        # for btn_id in self._square_names:
+        #     button_text += f'Button:\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ttext: \' \'\n\t\t\t\t'#on_press: root.attempt_move(self.id)'
 
 
         # for square_name in self._square_names:
@@ -102,24 +131,30 @@ class GessGameGUI(BoxLayout):
         temp_string = kv_string
         index = temp_string.find(' # Button insertion')
         modified_string = temp_string[:index] + '\n\t\t\t\t' + button_text + temp_string[index:]
-        # kv_string = modified_string
+        kv_string = modified_string
         print(kv_string)
-        Builder.load_string(kv_string)
+
+
 
         # self.update_board()
 
+    def attempt_move(self, id):
+        print(f'Pressed {id}')
+
     def update_square(self, square_name, new_value):
-        self.square_name.text = new_value
+        pass
+        # self.square_name.text = new_value
 
     def update_board(self):
-        current_values = []
-        for row in GessGame().get_gess_board():
-            for contents in row:
-                current_values.append(contents)
-
-        for current_index, current_value in enumerate(current_values):
-            square_name_at_index = self._square_names[current_index]
-            self.update_square(square_name_at_index, current_value)
+        pass
+        # current_values = []
+        # for row in GessGame().get_gess_board():
+        #     for contents in row:
+        #         current_values.append(contents)
+        #
+        # for current_index, current_value in enumerate(current_values):
+        #     square_name_at_index = self._square_names[current_index]
+        #     self.update_square(square_name_at_index, current_value)
 
 
 class GessApp(App):
