@@ -92,38 +92,10 @@ class GessGameGUI(BoxLayout):
         Builder.load_string(kv_string)
 
         self._square_names = []
-
-        # for digit in range(20, -1, -1):
-        #     if digit != 0:
-        #         for letter in 'abcdefghijklmnopqrstu':
-        #             if letter != 'u':
-        #                 square_name_to_append = letter + str(digit)
-        #             else:
-        #                 square_name_to_append = str(digit)
-        #             self._square_names.append(square_name_to_append)
-        #     else:
-        #         for letter in 'abcdefghijklmnopqrst':
-        #             self._square_names.append(letter)
-        #
-        # button_text = ''
-        # for btn_id in self._square_names:
-        #     button_text += f'Button:\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ttext: \' \'\n\t\t\t\t'#on_press: root.attempt_move(self.id)'
-
-
-        # for square_name in self._square_names:
-        #     self.named_button = SquareButton(text=square_name, id=square_name)
-        #     self.ids['grid_layout'].add_widget(self.named_button)
-        #     self.named_button.square_value = square_name
-        #     self.named_button.bind(on_press=attempt_move)
-
-        temp_string = kv_string
-        index = temp_string.find(' # Button insertion')
-        modified_string = temp_string[:index] + '\n\t\t\t\t' + button_text + temp_string[index:]
-        kv_string = modified_string
-        print(kv_string)
-
-
-
+        self._gess_game = GessGame()
+        self._status = 'WAITING_FOR_SELECTION'
+        self._origin_square_selection = ''
+        self._destination_square_selection = ''
         self.update_board()
 
     def attempt_move(self, square_coords):
@@ -132,6 +104,31 @@ class GessGameGUI(BoxLayout):
         :param square_coords:
         :return:
         """
+
+        if self._status == 'WAITING_FOR_SELECTION':
+            print(f'Origin selected: {square_coords}')
+            self._origin_square_selection = square_coords
+            self._status = 'ORIGIN_SELECTED'
+            return True
+
+        if self._status == 'ORIGIN_SELECTED':
+            print(f'Destination selected: {square_coords}')
+            self._destination_square_selection = square_coords
+            if self._gess_game.make_move(self._origin_square_selection, self._destination_square_selection):
+                print(f'Move from {self._origin_square_selection} to {self._destination_square_selection} successful.')
+                self.update_board()
+                self._status = 'WAITING_FOR_SELECTION'
+                self._origin_square_selection = ''
+                self._destination_square_selection = ''
+                return True
+            else:
+                print('Invalid move')
+                self._status = 'WAITING_FOR_SELECTION'
+                self._origin_square_selection = ''
+                self._destination_square_selection = ''
+                return False
+
+
         print(f'Pressed {square_coords}')
 
     def update_square(self, square_name, new_value):
@@ -141,7 +138,7 @@ class GessGameGUI(BoxLayout):
     def update_board(self):
         global square_names
         current_contents = []
-        for row in GessGame().get_gess_board():
+        for row in self._gess_game.get_gess_board():
             for contents in row:
                 current_contents.append(contents)
 
@@ -151,13 +148,7 @@ class GessGameGUI(BoxLayout):
         for (square_name, square_contents) in square_names_and_contents:
             self.ids[square_name].text = square_contents
 
-        # for square_index, named_square in enumerate(square_names):
-        #     for square in self.ids['grid_layout']:
-        #         print(square.value) #= current_values[square_index]
 
-        # for current_index, current_value in enumerate(current_values):
-        #     square_name_at_index = self._square_names[current_index]
-        #     self.update_square(square_name_at_index, current_value)
 
 
 class GessApp(App):
