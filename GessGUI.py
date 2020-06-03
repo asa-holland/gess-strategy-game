@@ -62,7 +62,7 @@ for digit in range(20, -1, -1):
 button_text = ''
 print(square_names)
 for btn_id in square_names:
-    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
+    button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tid: {btn_id}\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
 
 temp_string = kv_string
 index = temp_string.find(' # Button insertion')
@@ -124,7 +124,7 @@ class GessGameGUI(BoxLayout):
 
 
 
-        # self.update_board()
+        self.update_board()
 
     def attempt_move(self, square_coords):
         """
@@ -139,12 +139,22 @@ class GessGameGUI(BoxLayout):
         # self.square_name.text = new_value
 
     def update_board(self):
-        pass
-        # current_values = []
-        # for row in GessGame().get_gess_board():
-        #     for contents in row:
-        #         current_values.append(contents)
-        #
+        global square_names
+        current_contents = []
+        for row in GessGame().get_gess_board():
+            for contents in row:
+                current_contents.append(contents)
+
+        # square_names is a list of the 'value' of each square on the display
+        # current_contents is a list of the contents of each square on the Gess board
+        square_names_and_contents = zip(square_names, current_contents)
+        for (square_name, square_contents) in square_names_and_contents:
+            self.ids[square_name].text = square_contents
+
+        # for square_index, named_square in enumerate(square_names):
+        #     for square in self.ids['grid_layout']:
+        #         print(square.value) #= current_values[square_index]
+
         # for current_index, current_value in enumerate(current_values):
         #     square_name_at_index = self._square_names[current_index]
         #     self.update_square(square_name_at_index, current_value)
