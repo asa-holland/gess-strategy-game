@@ -334,11 +334,6 @@ class GessGame:
             for column_value in range(origin_column - 1, origin_column + 2):
                 self._board.get_board()[row_value][column_value] = ' '
 
-        # Check that by lifting this piece away, the current player has not broken their last remaining ring
-        # If so, this is an invalid move. Return False.
-        if not self._board.has_rings(self.get_current_player()):
-            return False
-
         # Create a function to iterate over squares in the provided piece and place the tokens in the provided location
         def place_piece(piece_to_place, row_to_place, column_to_place):
             """
@@ -353,6 +348,12 @@ class GessGame:
                     self._board.get_board()[row_of_piece][column_of_piece] = piece_to_place[piece_index]
                     piece_index += 1
 
+        # Check that by lifting this piece away, the current player has not broken their last remaining ring
+        # If so, this is an invalid move. Place the piece back and Return False.
+        if not self._board.has_rings(self.get_current_player()):
+            place_piece(lifted, origin_row, origin_column)
+            return False
+
         # Then, move the piece towards the destination square one square at a time in the desired direction.
         # While doing this, check for tokens of either player.
         # If any tokens of either player are encountered before the move is completed, return False as the move.
@@ -361,12 +362,24 @@ class GessGame:
         while not (current_row == destination_row and current_column == destination_column):
             for square in self._board.get_piece_from_square([current_column, current_row]):
                 if square != ' ':
-
                     # If we have encountered another obstruction piece here, place the lifted piece back
                     place_piece(lifted, origin_row, origin_column)
                     return False
             current_row += int(x_move)
             current_column += int(y_move)
+
+        # If the path has been determined to be clear, check that the footprint will not overlap a ring
+        lifted_destination = list(self._board.get_piece_from_square(destination_coords))
+        for row_value in range(destination_row - 1, destination_row + 2):
+            for column_value in range(destination_column - 1, destination_column + 2):
+                self._board.get_board()[row_value][column_value] = ' '
+
+        # Check that by lifting the tokens in the destination footprint, the current player still has a remaining ring
+        # If they do not, this is an invalid move. Place the destination and origin pieces back, and Return False.
+        if not self._board.has_rings(self.get_current_player()):
+            place_piece(lifted_destination, destination_row, destination_column)
+            place_piece(lifted, origin_row, origin_column)
+            return False
 
         # If the path has been determined to be clear of obstructions, place the piece in the destination
         place_piece(lifted, destination_row, destination_column)

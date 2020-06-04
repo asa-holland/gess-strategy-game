@@ -182,8 +182,12 @@ class GessGameGUI(BoxLayout):
         for (square_name, square_contents) in square_names_and_contents:
             self.ids[square_name].text = square_contents
 
-        current_player = 'Black' if self._gess_game.get_current_player() == 'B' else 'White'
-        self.ids['top_buffer'].text = 'Current Player: ' + current_player
+        if self._gess_game.get_game_state() == 'UNFINISHED':
+            current_player = 'Black' if self._gess_game.get_current_player() == 'B' else 'White'
+            self.ids['top_buffer'].text = 'Current Player: ' + current_player
+        else:
+            winning_player = 'Black' if self._gess_game.get_game_state() == 'BLACK_WON' else 'White'
+            self.ids['top_buffer'].text = 'Game Over... ' + winning_player + ' Won!'
 
 
 
