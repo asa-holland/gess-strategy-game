@@ -61,7 +61,7 @@ kv_string = """
                 id: resign_btn
                 size_hint_y: None
                 height: 25
-                on_press: root.get_gess_game().resign_game()
+                on_press: root.press_resign_button()
 """
 square_names = []
 for digit in range(20, -1, -1):
@@ -119,6 +119,17 @@ class GessGameGUI(BoxLayout):
         self._destination_square_selection = ''
         self.update_board()
 
+    def press_resign_button(self):
+        """
+        When the 'Resign Game' button is pressed, updates the current game status in the back end and the GUI display.
+        """
+        # First, call the resign game function in the back end class. This effectively ends the game.
+        self._gess_game.resign_game()
+        # Then, update the current GUI to reflect that the game has ended and the appropriate player has won.
+        self.update_current_status()
+
+
+
     def get_gess_game(self):
         """
         Returns the backend of the current Gess Game.
@@ -169,25 +180,37 @@ class GessGameGUI(BoxLayout):
         pass
         # self.square_name.text = new_value
 
-    def update_board(self):
-        global square_names
-        current_contents = []
-        for row in self._gess_game.get_gess_board():
-            for contents in row:
-                current_contents.append(contents)
-
-        # square_names is a list of the 'value' of each square on the display
-        # current_contents is a list of the contents of each square on the Gess board
-        square_names_and_contents = zip(square_names, current_contents)
-        for (square_name, square_contents) in square_names_and_contents:
-            self.ids[square_name].text = square_contents
-
+    def update_current_status(self):
         if self._gess_game.get_game_state() == 'UNFINISHED':
             current_player = 'Black' if self._gess_game.get_current_player() == 'B' else 'White'
             self.ids['top_buffer'].text = 'Current Player: ' + current_player
         else:
             winning_player = 'Black' if self._gess_game.get_game_state() == 'BLACK_WON' else 'White'
             self.ids['top_buffer'].text = 'Game Over... ' + winning_player + ' Won!'
+
+    def update_board(self):
+
+        # Obtain the names of the square coordinates
+        global square_names
+
+        # Obtain the current values of the Gess Game board
+        current_contents = []
+        for row in self._gess_game.get_gess_board():
+            for contents in row:
+                current_contents.append(contents)
+
+        # Match these two lists (the names of square coordinates and the current values)
+        # square_names is a list of the 'value' of each square on the display
+        # current_contents is a list of the contents of each square on the Gess board
+        # For each match, set the resulting square of the GUI so that it's contents match the backend contents
+        square_names_and_contents = zip(square_names, current_contents)
+        for (square_name, square_contents) in square_names_and_contents:
+            self.ids[square_name].text = square_contents
+
+        # Update the current status displayed at the top of the board
+        self.update_current_status()
+
+
 
 
 
