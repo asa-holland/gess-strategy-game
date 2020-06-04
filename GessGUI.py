@@ -13,7 +13,10 @@ from kivy.uix.button import Button
 from kivy.graphics import Color
 from kivy.core.image import Image as CoreImage
 from kivy.graphics import BorderImage
+from kivy import Config
 
+Config.set('graphics', 'minimum_width', '600')
+Config.set('graphics', 'minimum_height', '600')
 
 kv_string = """
 <GessGameGUI>:
@@ -80,7 +83,8 @@ button_text = ''
 print(square_names)
 for btn_id in square_names:
     button_text += f'SquareButton:\n\t\t\t\t\tsquare_coords: \'{btn_id}\'' \
-                   f'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tbackground_color: 0, 0, 0, 0.2\n\t\t\t\t\tid: {btn_id}' \
+                   f'\n\t\t\t\t\ttext: \' \'\n\t\t\t\t\tbackground_color: 0, 0, 0, 0\n\t\t\t\t\t' \
+                   f'font_name: "/usr/share/fonts/truetype/freefont/FreeSans.ttf"\n\t\t\t\t\tid: {btn_id}' \
                    f'\n\t\t\t\t\ton_press: root.attempt_move(self.square_coords)\n\t\t\t\t'
 
 temp_string = kv_string
@@ -93,7 +97,9 @@ class SquareButton(Button):
     """
     Creates a custom class inheriting from the kivy Button class, representing one of the squares on the board.
     """
+
     def on_size(self, square_coords='', *args):
+        self.font_name = 'Arial.ttf'
         self.canvas.before.clear()
         with self.canvas.before:
             pass
@@ -141,7 +147,7 @@ class GessGameGUI(BoxLayout):
         self.ids[coordinates].background_color = (0, 1, 0, 1)
 
     def decolor_square(self, coordinates):
-        self.ids[coordinates].background_color = (0, 0, 0, 0.2)
+        self.ids[coordinates].background_color = (0, 0, 0, 0)
 
     def attempt_move(self, square_coords):
         """
@@ -201,11 +207,29 @@ class GessGameGUI(BoxLayout):
 
         # Match these two lists (the names of square coordinates and the current values)
         # square_names is a list of the 'value' of each square on the display
-        # current_contents is a list of the contents of each square on the Gess board
+        # formatted_contents is a list of the formatted contents of each square on the Gess board
         # For each match, set the resulting square of the GUI so that it's contents match the backend contents
         square_names_and_contents = zip(square_names, current_contents)
         for (square_name, square_contents) in square_names_and_contents:
-            self.ids[square_name].text = square_contents
+            if square_contents == 'W':
+                self.ids[square_name].text = u'\u25CF'
+                self.ids[square_name].color = 0, 0, 0, 1
+                self.ids[square_name].font_size = 40
+                self.ids[square_name].bold = False
+                self.ids[square_name].text_size = (0, 38)
+            elif square_contents == 'B':
+                self.ids[square_name].text = u'\u25CF'
+                self.ids[square_name].color = 1, 1, 1, 1
+                self.ids[square_name].font_size = 40
+                self.ids[square_name].bold = False
+                self.ids[square_name].text_size = (0, 38)
+            else:
+                self.ids[square_name].text = square_contents
+                self.ids[square_name].color = 0, 0, 0, 1
+                self.ids[square_name].font_size = 16
+                self.ids[square_name].bold = True
+                self.ids[square_name].text_size = (None, None)
+
 
         # Update the current status displayed at the top of the board
         self.update_current_status()
