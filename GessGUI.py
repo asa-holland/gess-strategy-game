@@ -143,8 +143,11 @@ class GessGameGUI(BoxLayout):
         """
         return self._gess_game
 
-    def highlight_square(self, coordinates):
+    def highlight_green_square(self, coordinates):
         self.ids[coordinates].background_color = (0, 1, 0, 1)
+
+    def highlight_yellow_square(self, coordinates):
+        self.ids[coordinates].background_color = (1, 1, 0, 1)
 
     def decolor_square(self, coordinates):
         self.ids[coordinates].background_color = (0, 0, 0, 0)
@@ -156,10 +159,20 @@ class GessGameGUI(BoxLayout):
         :return:
         """
 
+        global square_names
+
         if self._status == 'WAITING_FOR_SELECTION':
             print(f'Origin selected: {square_coords}')
             self._origin_square_selection = square_coords
-            self.highlight_square(square_coords)
+            self.highlight_green_square(square_coords)
+
+            square_index = square_names.index(square_coords)
+
+            for square in (square_index - 22, square_index - 21, square_index - 20,
+                            square_index - 1, square_index + 1,
+                           square_index + 20, square_index + 21, square_index + 22):
+                self.highlight_yellow_square(square_names[square])
+
             self._status = 'ORIGIN_SELECTED'
             return True
 
@@ -168,6 +181,10 @@ class GessGameGUI(BoxLayout):
             self._destination_square_selection = square_coords
 
             self.decolor_square(self._origin_square_selection)
+
+            for square_name in square_names:
+                self.decolor_square(square_name)
+
             if self._gess_game.make_move(self._origin_square_selection, self._destination_square_selection):
                 print(f'Move from {self._origin_square_selection} to {self._destination_square_selection} successful.')
                 self.update_board()
