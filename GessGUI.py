@@ -277,8 +277,11 @@ class GessGameGUI(BoxLayout):
                             square_index - 1, square_index + 1,
                            square_index + 20, square_index + 21, square_index + 22):
 
+                # Highlight playable squares within the piece in yellow
                 if square_names[square] not in non_playable_squares:
                     self.highlight_yellow_square(square_names[square])
+
+                # Highlight non-playable squares (boundary boxes) within the piece in red
                 elif square_names[square] in non_playable_squares and self.ids[square_names[square]].text == ' ':
                     self.highlight_red_square(square_names[square])
 
