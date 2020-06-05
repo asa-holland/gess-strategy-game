@@ -5,13 +5,9 @@
 from GessGame import GessGame
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.graphics import Color
-from kivy.core.image import Image as CoreImage
 from kivy.graphics import Line
 from kivy import Config
 
@@ -21,6 +17,7 @@ Config.set('graphics', 'minimum_width', '600')
 Config.set('graphics', 'minimum_height', '600')
 Config.set('kivy', 'window_icon', None)
 
+# Write a kivy builder string representing the main board display including buffer space and buttons
 kv_string = """
 
 <BackgroundColor@Widget>
@@ -164,10 +161,11 @@ class SquareButton(Button):
         with self.canvas.before:
             pass
 
+        # Draw a black line around each square to represent the boundary lines of the Gess board
         self.canvas.after.clear()
         with self.canvas.after:
             Color(0, 0, 0, 1)
-            self.line = Line(width=1.2,
+            self.line = Line(width=1.05,
                              points=(self.x, self.y,
                                      self.x, self.y + self.height,
                                      self.x + self.width, self.y + self.height,
@@ -178,6 +176,9 @@ class SquareButton(Button):
 
 
     def update_line(self, *args):
+        """
+        Updates the location of the lines around a square on the Gess Board when the window is resized
+        """
         self.canvas.after.clear()
         self.line = Line(width=2,
                          points=(self.x, self.y,
