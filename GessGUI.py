@@ -228,7 +228,8 @@ class GessGameGUI(BoxLayout):
         """
         Sends a coordinate from a square.
         :param square_coords:
-        :return:
+        :return: Returns True if 1) the origin square has been selected or 2) a destination square has been selected
+        and the move has been made. Otherwise, returns False.
         """
 
         global square_names
@@ -281,6 +282,10 @@ class GessGameGUI(BoxLayout):
                 return False
 
     def update_current_status(self):
+        """
+        Updates the current status displayed in the game GUI based on the backend of the Gess game.
+        :return: Returns None
+        """
         if self._gess_game.get_game_state() == 'UNFINISHED':
             current_player = 'Black' if self._gess_game.get_current_player() == 'B' else 'White'
             self.ids['current_status_gui'].text = 'Current Player: ' + current_player
@@ -289,7 +294,10 @@ class GessGameGUI(BoxLayout):
             self.ids['current_status_gui'].text = 'Game Over... ' + winning_player + ' Won!'
 
     def update_board(self):
-
+        """
+        Updates the current GUI board to reflect that of the backend board. Displays colored tokens and their locations.
+        :return: Returns None.
+        """
         # Obtain the names of the square coordinates
         global square_names
 
@@ -305,25 +313,30 @@ class GessGameGUI(BoxLayout):
         # For each match, set the resulting square of the GUI so that it's contents match the backend contents
         square_names_and_contents = zip(square_names, current_contents)
         for (square_name, square_contents) in square_names_and_contents:
-            if square_contents == 'W':
-                self.ids[square_name].text = u'\u25CF'
-                self.ids[square_name].color = 1, 1, 1, 1
-                self.ids[square_name].font_size = 40
-                self.ids[square_name].bold = False
-                self.ids[square_name].text_size = (0, 38)
-            elif square_contents == 'B':
-                self.ids[square_name].text = u'\u25CF'
-                self.ids[square_name].color = 0, 0, 0, 1
-                self.ids[square_name].font_size = 40
-                self.ids[square_name].bold = False
-                self.ids[square_name].text_size = (0, 38)
-            else:
-                self.ids[square_name].text = square_contents
-                self.ids[square_name].color = 0, 0, 0, 1
-                self.ids[square_name].font_size = 16
-                self.ids[square_name].bold = True
-                self.ids[square_name].text_size = (None, None)
+            square = self.ids[square_name]
 
+            # For squares with containing tokens, place the token (a unicode filled-circle symbol) in the square center.
+            if square_contents in {'W', 'B'}:
+                square.text = u'\u25CF'
+                square.font_size = 40
+                square.bold = False
+                square.text_size = (0, 38)
+
+                # For squares with Black tokens, set the font color of the token to Black.
+                if square_contents == 'B':
+                    square.color = 0, 0, 0, 1
+
+                # If the token is white, set the font color to White.
+                else:
+                    square.color = 1, 1, 1, 1
+
+            # For squares without tokens, set the text format to black, bold font and decrease the font size.
+            else:
+                square.text = square_contents
+                square.color = 0, 0, 0, 1
+                square.font_size = 16
+                square.bold = True
+                square.text_size = (None, None)
 
         # Update the current status displayed at the top of the board
         self.update_current_status()
