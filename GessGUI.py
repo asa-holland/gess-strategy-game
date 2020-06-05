@@ -19,6 +19,7 @@ from kivy import Config
 # Set minimum size of the window to avoid texture problems
 Config.set('graphics', 'minimum_width', '600')
 Config.set('graphics', 'minimum_height', '600')
+Config.set('kivy', 'window_icon', None)
 
 kv_string = """
 
@@ -125,6 +126,7 @@ for digit in range(20, -1, -1):
 # Define the non-playable squares on the board
 non_playable_squares = [letter for letter in 'abcdefghijklmnopqrst'] + [str(i) for i in range(1, 21)] +\
                        ['a' + str(i) for i in range(1, 21)] + \
+                       ['t' + str(i) for i in range(1, 21)] + \
                        ['u' + str(i) for i in range(1, 21)] + \
                        [letter + '20'for letter in 'abcdefghijklmnopqrst'] + \
                        [letter + '1' for letter in 'abcdefghijklmnopqrst']
@@ -255,7 +257,8 @@ class GessGameGUI(BoxLayout):
         and the move has been made. Otherwise, returns False.
         """
 
-        # Initial test for validation of squares within the playable board:
+        # Initial test for validation of squares within the playable board
+        # If the square coordinates received are not within the playable area, return False
         global square_names
         if square_coords not in just_playable_square_names:
             return False
@@ -268,12 +271,16 @@ class GessGameGUI(BoxLayout):
             self.highlight_green_square(square_coords)
 
             # Highlight the eight cells around the origin square in yellow color
+            # Only highlight playable squares
             square_index = square_names.index(square_coords)
             for square in (square_index - 22, square_index - 21, square_index - 20,
                             square_index - 1, square_index + 1,
                            square_index + 20, square_index + 21, square_index + 22):
-                if self.ids[square_names[square]].text in (' ', u'\u25CF'):
+
+                if square_names[square] not in non_playable_squares:
                     self.highlight_yellow_square(square_names[square])
+                elif square_names[square] in non_playable_squares and self.ids[square_names[square]].text == ' ':
+                    self.highlight_red_square(square_names[square])
 
             # Record that the origin has been selected and return
             self._status = 'ORIGIN_SELECTED'
