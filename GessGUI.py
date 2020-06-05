@@ -48,7 +48,7 @@ kv_string = """
             text: ' '
             id: top_buffer
             size_hint_y: None
-            height: 5
+            height: 3
         BoxLayout:
             orientation: 'horizontal'
             id: central_area
@@ -56,7 +56,7 @@ kv_string = """
                 text: ' '
                 id: left_buffer
                 size_hint_x: None
-                width: 5  
+                width: 3 
             GridLayout:
                 id: grid_layout
                 canvas.before:
@@ -69,7 +69,7 @@ kv_string = """
                 text: ' '
                 id: right_buffer
                 size_hint_x: None
-                width: 5
+                width: 3
                 # Right Buffer
         Label:
             text: ' '
@@ -81,6 +81,10 @@ kv_string = """
             id: bottom_tabs
             size_hint_y: None
             height: 25
+            Label:
+                text: ' '
+                size_hint_x: None
+                width: 3
             Button:
                 text: 'Resign Game'
                 id: resign_btn
@@ -93,10 +97,19 @@ kv_string = """
                 size_hint_y: None
                 height: 25
                 on_press: root.press_reset_button()
+            Label:
+                text: ' '
+                size_hint_x: None
+                width: 3
+        Label:
+            text: ' '
+            size_hint_y: None
+            height: 1 
 """
 
 # Build a list of the names of the squares by iterating over the letters and numbers of the Gess Board
 square_names = []
+
 for digit in range(20, -1, -1):
     if digit != 0:
         for letter in 'abcdefghijklmnopqrstu':
@@ -108,6 +121,16 @@ for digit in range(20, -1, -1):
     else:
         for letter in 'abcdefghijklmnopqrst':
             square_names.append(letter)
+
+# Define the non-playable squares on the board
+non_playable_squares = [letter for letter in 'abcdefghijklmnopqrst'] + [str(i) for i in range(1, 21)] +\
+                       ['a' + str(i) for i in range(1, 21)] + \
+                       ['u' + str(i) for i in range(1, 21)] + \
+                       [letter + '20'for letter in 'abcdefghijklmnopqrst'] + \
+                       [letter + '1' for letter in 'abcdefghijklmnopqrst']
+
+# Define the playable squares on the board
+just_playable_square_names = [name for name in square_names if name not in non_playable_squares]
 
 # Utilize the existing list of square names on the Gess Board to add 21*21 buttons to the Gess Board
 # Each button has an id that matches the given square name, defaults to text filled with a space character,
@@ -232,7 +255,10 @@ class GessGameGUI(BoxLayout):
         and the move has been made. Otherwise, returns False.
         """
 
+        # Initial test for validation of squares within the playable board:
         global square_names
+        if square_coords not in just_playable_square_names:
+            return False
 
         # If this is the first square selection made by the current player, set the selected square as the origin
         # Highlight the origin square green
@@ -246,7 +272,8 @@ class GessGameGUI(BoxLayout):
             for square in (square_index - 22, square_index - 21, square_index - 20,
                             square_index - 1, square_index + 1,
                            square_index + 20, square_index + 21, square_index + 22):
-                self.highlight_yellow_square(square_names[square])
+                if self.ids[square_names[square]].text in (' ', u'\u25CF'):
+                    self.highlight_yellow_square(square_names[square])
 
             # Record that the origin has been selected and return
             self._status = 'ORIGIN_SELECTED'
@@ -315,7 +342,7 @@ class GessGameGUI(BoxLayout):
         for (square_name, square_contents) in square_names_and_contents:
             square = self.ids[square_name]
 
-            # For squares with containing tokens, place the token (a unicode filled-circle symbol) in the square center.
+            # For squares with containing tokens, place the token (a unicode filled circle symbol) in the square center.
             if square_contents in {'W', 'B'}:
                 square.text = u'\u25CF'
                 square.font_size = 40
@@ -330,7 +357,7 @@ class GessGameGUI(BoxLayout):
                 else:
                     square.color = 1, 1, 1, 1
 
-            # For squares without tokens, set the text format to black, bold font and decrease the font size.
+            # For squares without tokens, set the text format to black and normal font.
             else:
                 square.text = square_contents
                 square.color = 0, 0, 0, 1
