@@ -12,7 +12,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.graphics import Color
 from kivy.core.image import Image as CoreImage
-from kivy.graphics import BorderImage
+from kivy.graphics import Line
 from kivy import Config
 
 
@@ -164,6 +164,27 @@ class SquareButton(Button):
         with self.canvas.before:
             pass
 
+        self.canvas.after.clear()
+        with self.canvas.after:
+            Color(0, 0, 0, 1)
+            self.line = Line(width=1.2,
+                             points=(self.x, self.y,
+                                     self.x, self.y + self.height,
+                                     self.x + self.width, self.y + self.height,
+                                     self.x + self.width, self.y,
+                                     self.x, self.y,), color=(0, 0, 0, 1))
+
+        self.bind(x=self.update_line, y=self.update_line)
+
+
+    def update_line(self, *args):
+        self.canvas.after.clear()
+        self.line = Line(width=2,
+                         points=(self.x, self.y,
+                                 self.x, self.y + self.height,
+                                 self.x + self.width, self.y + self.height,
+                                 self.x + self.width, self.y,
+                                 self.x, self.y,))
 
 # Run the modified kivy string, which will build the basic structure of the resulting App
 Builder.load_string(kv_string)
